@@ -1,0 +1,40 @@
+<script src="/jquery-1.10.2.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<script type="text/javascript">
+$(function() {
+  var socket = io()
+
+  socket.on('connect', function() {
+    alert('washashdf')
+  })
+
+
+
+
+
+  $('body').keydown(function(e) {
+    var keys = {
+      38: 'up',
+      37: 'left',
+      39: 'right',
+      40: 'down'
+    }
+    if (! (e.keyCode in keys) ) return
+
+    socket.emit('keydown', keys[e.keyCode])
+  })
+})
+</script>
+
+<style type="text/css">
+  .player {
+    border: 1px solid black;
+    width: 10px;
+    height: 10px;
+  }
+</style>
+
+<div class="yeah">
+  <div class='player'>&nbsp;</div>
+</div>

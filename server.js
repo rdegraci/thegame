@@ -2,7 +2,7 @@
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-var io = require('../..')(server);
+var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
 
 server.listen(port, function () {
@@ -29,7 +29,7 @@ function createUser() {
 io.on('connection', function (socket) {
   users[socket.id] = createUser()
 
-  socket.on('key
+//  socket.on('key
 
   // remove user and tell everyone the user is gone
   socket.on('disconnect', function() {
