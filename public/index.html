@@ -3,15 +3,60 @@
 
 <script type="text/javascript">
 $(function() {
+
+
+
+  function userAction(cmd) {
+    var troll = prompt("You're walking through the forest, minding your own business, and you run into a troll! Do you FIGHT him, PAY him, or RUN?").toUpperCase();
+
+    switch(cmd) {
+      case 'FIGHT':
+        var strong = prompt("How courageous! Are you strong (YES or NO)?").toUpperCase();
+        var smart = prompt("Are you smart?").toUpperCase();
+        var response;
+        if(strong === 'YES' || smart === 'YES') {
+          response"You only need one of the two! You beat the troll--nice work!";
+          setResponse(response);
+        } else {
+          response"You're not strong OR smart? Well, if you were smarter, you probably wouldn't have tried to fight a troll. You lose!";
+          setResponse(response);
+        }
+        break;
+      case 'PAY':
+        var money = prompt("All right, we'll pay the troll. Do you have any money (YES or NO)?").toUpperCase();
+        var dollars = prompt("Is your money in Troll Dollars?").toUpperCase();
+        if(money === 'YES' && dollars === 'YES') {
+          response = "Great! You pay the troll and continue on your merry way.";
+          setResponse(response);
+        } else {
+          response = "Dang! This troll only takes Troll Dollars. You get whomped!";
+          setResponse(response);
+        }
+        break;
+      case 'RUN':
+        var fast = prompt("Let's book it! Are you fast (YES or NO)?").toUpperCase();
+        var headStart = prompt("Did you get a head start?").toUpperCase();
+        if(fast === 'YES' || headStart === 'YES') {
+          response = "You got away--barely! You live to stroll through the forest another day.";
+          setResponse(response);
+        } else {
+          response = "You're not fast and you didn't get a head start? You never had a chance! The troll eats you.";
+          setResponse(response);
+        }
+        break;
+      default:
+        response = "I didn't understand your choice. Hit Run and try again, this time picking FIGHT, PAY, or RUN!";
+        setResponse(response);
+    }
+  }
+
+
+
   var socket = io()
 
   socket.on('connect', function() {
     
   })
-
-
-
-
 
   $('body').keydown(function(e) {
     var keys = {
@@ -23,6 +68,15 @@ $(function() {
     if (! (e.keyCode in keys) ) return
 
     socket.emit('keydown', keys[e.keyCode])
+  })
+
+  $('input[name=fname]').keydown(function(e) {
+    if (e.keyCode == 13) { // enter key
+      var command = $(this).val()
+      $(this).val('')
+
+      userAction(command)
+    }
   })
 })
 </script>
@@ -41,58 +95,3 @@ $(function() {
 
   <div id="display">&nbsp;</div>
 </div>
-
-<script type="text/javascript">
-
-/*
-
-REPL:
-
-state: fight, pay, run, default
-
-
-
-*/
-
-var troll = prompt("You're walking through the forest, minding your own business, and you run into a troll! Do you FIGHT him, PAY him, or RUN?").toUpperCase();
-
-switch(troll) {
-  case 'FIGHT':
-    var strong = prompt("How courageous! Are you strong (YES or NO)?").toUpperCase();
-    var smart = prompt("Are you smart?").toUpperCase();
-    var response;
-    if(strong === 'YES' || smart === 'YES') {
-      response"You only need one of the two! You beat the troll--nice work!";
-      setResponse(response);
-    } else {
-      response"You're not strong OR smart? Well, if you were smarter, you probably wouldn't have tried to fight a troll. You lose!";
-      setResponse(response);
-    }
-    break;
-  case 'PAY':
-    var money = prompt("All right, we'll pay the troll. Do you have any money (YES or NO)?").toUpperCase();
-    var dollars = prompt("Is your money in Troll Dollars?").toUpperCase();
-    if(money === 'YES' && dollars === 'YES') {
-      response = "Great! You pay the troll and continue on your merry way.";
-      setResponse(response);
-    } else {
-      response = "Dang! This troll only takes Troll Dollars. You get whomped!";
-      setResponse(response);
-    }
-    break;
-  case 'RUN':
-    var fast = prompt("Let's book it! Are you fast (YES or NO)?").toUpperCase();
-    var headStart = prompt("Did you get a head start?").toUpperCase();
-    if(fast === 'YES' || headStart === 'YES') {
-      response = "You got away--barely! You live to stroll through the forest another day.";
-      setResponse(response);
-    } else {
-      response = "You're not fast and you didn't get a head start? You never had a chance! The troll eats you.";
-      setResponse(response);
-    }
-    break;
-  default:
-    response = "I didn't understand your choice. Hit Run and try again, this time picking FIGHT, PAY, or RUN!";
-    setResponse(response);
-}
-</script>
