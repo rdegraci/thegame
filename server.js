@@ -29,7 +29,9 @@ function createUser() {
 io.on('connection', function (socket) {
   users[socket.id] = createUser()
 
-//  socket.on('key
+  socket.on('keydown', function(key) {
+    users.keys[key] = true
+  })
 
   // remove user and tell everyone the user is gone
   socket.on('disconnect', function() {
