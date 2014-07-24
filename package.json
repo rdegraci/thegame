@@ -1,0 +1,16 @@
+{
+  "name": "thegame",
+  "version": "0.0.1",
+  "description": "a game that does gaming",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "socket.io": "",
+    "express": ""
+  },
+  "author": "",
+  "license": "ISC"
+}
