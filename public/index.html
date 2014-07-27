@@ -42,10 +42,12 @@ $(function() {
   })
 
   game.on('step', function() {
-    eval($('#code').val())
-    var move = angryGoBot([1,2])
-    socket.emit('keypress', move)
-    me.move(move)
+    try {
+      eval($('#code').val())
+      var move = angryGoBot([1,2])
+      socket.emit('keypress', move)
+      me.move(move)
+    } catch(e) {}
   })
 
   socket.on('user_change', function(u) {
