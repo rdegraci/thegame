@@ -1,101 +1,114 @@
 <script src="/jquery-1.10.2.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
+<script type="text/javascript" src="game.js"></script>
 <script type="text/javascript">
 $(function() {
 
-
-
-  function userAction(cmd) {
-
-
-
-
-    // var troll = prompt("You're walking through the forest, minding your own business, and you run into a troll! Do you FIGHT him, PAY him, or RUN?").toUpperCase();
-
-    switch(cmd) {
-      case 'FIGHT':
-        var strong = prompt("How courageous! Are you strong (YES or NO)?").toUpperCase();
-        var smart = prompt("Are you smart?").toUpperCase();
-        var response;
-        if(strong === 'YES' || smart === 'YES') {
-          response = "You only need one of the two! You beat the troll--nice work!";
-          setResponse(response);
-        } else {
-          response = "You're not strong OR smart? Well, if you were smarter, you probably wouldn't have tried to fight a troll. You lose!";
-          setResponse(response);
-        }
-        break;
-      case 'PAY':
-        var money = prompt("All right, we'll pay the troll. Do you have any money (YES or NO)?").toUpperCase();
-        var dollars = prompt("Is your money in Troll Dollars?").toUpperCase();
-        if(money === 'YES' && dollars === 'YES') {
-          response = "Great! You pay the troll and continue on your merry way.";
-          setResponse(response);
-        } else {
-          response = "Dang! This troll only takes Troll Dollars. You get whomped!";
-          setResponse(response);
-        }
-        break;
-      case 'RUN':
-        var fast = prompt("Let's book it! Are you fast (YES or NO)?").toUpperCase();
-        var headStart = prompt("Did you get a head start?").toUpperCase();
-        if(fast === 'YES' || headStart === 'YES') {
-          response = "You got away--barely! You live to stroll through the forest another day.";
-          setResponse(response);
-        } else {
-          response = "You're not fast and you didn't get a head start? You never had a chance! The troll eats you.";
-          setResponse(response);
-        }
-        break;
-      default:
-        response = "I didn't understand your choice. Hit Run and try again, this time picking FIGHT, PAY, or RUN!";
-        setResponse(response);
-    }
+  var socket = io()
+  var game = new Game(10)
+  var me
+  var step = 0
+  var keymap = {
+    38: 'up',
+    37: 'left',
+    39: 'right',
+    40: 'down'
   }
 
+  socket.on('connect', function() { })
 
-
-  var socket = io()
-
-  socket.on('connect', function() {
-    
+  socket.on('me', function(me_data) {
+    me = game.createUser(me_data.id, me_data.me)
   })
 
-  $('body').keydown(function(e) {
-    var keys = {
-      38: 'up',
-      37: 'left',
-      39: 'right',
-      40: 'down'
-    }
-    if (! (e.keyCode in keys) ) return
-
-    socket.emit('keydown', keys[e.keyCode])
+  socket.on('newUser', function(user_data) {
+    game.createUser(user_data.id, user_data.player)
   })
 
-  $('input[name=fname]').keydown(function(e) {
-    if (e.keyCode == 13) { // enter key
-      var command = $(this).val()
-      $(this).val('')
-
-      userAction(command)
-    }
+  $('body').on('keyup', function(e) {
+    if (! (e.keyCode in keymap) ) return
+    socket.emit('keypress', keymap[e.keyCode])
+    me.move(keymap[e.keyCode])
   })
+
+  game.on('render_user', function(u) {
+    $('#player_'+ u.id).css({ left: u.x + 'px', top: u.y + 'px' })
+  })
+
+  game.on('user_created', function(u) {
+    $('.yeah').append('<div class="player gray down_1" id="player_' + u.id + '"></div>')
+    console.log('thinking i am creating ' + u.id + ' for the first time')
+  })
+
+  game.on('step', function() {
+    eval($('#code').val())
+    var move = angryGoBot([1,2])
+    socket.emit('keypress', move)
+    me.move(move)
+  })
+
+  socket.on('user_change', function(u) {
+    game.users[u.id].update(u)
+  })
+
+  socket.on('remove_user', function(id) {
+    game.removeUser(id)
+    $('#player_'+id).remove()
+  })
+
+  setInterval(function() {
+    var cs
+    step = (step+1) % 3
+    $('.player').each(function(i,p) {
+      cs = p.className.match(/(down|left|right|up)_([0-9]+)/)
+      $(p).removeClass(cs[0]).addClass(cs[1] + '_' + ( (parseInt(cs[2])+1) % 4))
+    })
+  },300)
 })
 </script>
 
 <style type="text/css">
   .player {
-    border: 1px solid black;
-    width: 10px;
-    height: 10px;
+    position: absolute;
+    font-family: sans-serif;
+    width: 32px;
+    height: 32px;
+    background-image: url(hitech.png);
+  }
+  .player.gray.down_0  { background-position:   0px   0px; }
+  .player.gray.down_1  { background-position: -32px   0px; }
+  .player.gray.down_2  { background-position: -64px   0px; }
+  .player.gray.down_3  { background-position: -32px   0px; }
+  .player.gray.left_0  { background-position:   0px -32px; }
+  .player.gray.left_1  { background-position: -32px -32px; }
+  .player.gray.left_2  { background-position: -64px -32px; }
+  .player.gray.left_3  { background-position: -32px -32px; }
+  .player.gray.right_0 { background-position:   0px -64px; }
+  .player.gray.right_1 { background-position: -32px -64px; }
+  .player.gray.right_2 { background-position: -64px -64px; }
+  .player.gray.right_3 { background-position: -32px -64px; }
+  .player.gray.up_0    { background-position:   0px -96px; }
+  .player.gray.up_1    { background-position: -32px -96px; }
+  .player.gray.up_2    { background-position: -64px -96px; }
+  .player.gray.up_3    { background-position: -32px -96px; }
+
+  #code {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 15px;
+    height: 600px;
+    width: 400px;
   }
 </style>
 
 <div class="yeah">
-  Input: <input type="text" name="fname"><br>
-  <div class='player'>You're wandering through a forest. You are trying to find the grand cuckoo. <br> You can go North, South, East, or West. Which do you go?</div>
-
-  <div id="display">&nbsp;</div>
 </div>
+
+<textarea id="code">
+// type yo javascript code in here
+function angryGoBot(bots) {
+  return 'down';
+}
+</textarea>
