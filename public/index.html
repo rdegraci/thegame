@@ -111,6 +111,9 @@ $(function() {
 <textarea id="code">
 // type yo javascript code in here
 function angryGoBot(bots) {
-  return 'down';
+  if (!game.count) game.count=0
+  var moves = ['up','right','down','left']
+  game.count++
+  return moves[game.count%moves.length]
 }
 </textarea>
